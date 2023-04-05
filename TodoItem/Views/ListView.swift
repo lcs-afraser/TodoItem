@@ -4,14 +4,16 @@
 //
 //  Created by Alistair Fraser on 2023-04-04.
 //
-
+import Blackbird
 import SwiftUI
 
 struct ListView: View {
     //MARK: Stored Properties
     
     //The list of items to be completed
-    @State var todoItems: [TodoItem] = existingTodoItems
+    @BlackbirdLiveModels({db in
+        try await TodoItem.read(from: db)
+    }) var todoItems
     
     //The items currently being added
     @State var newItemDescription: String = ""
@@ -24,20 +26,20 @@ struct ListView: View {
                     TextField("Enter a to-do item",text: $newItemDescription)
                     
                     Button(action: {
-                        //Get last todo item id
-                        let lastId = todoItems.last!.id
-                        
-                        //Create new todo item id
-                        let newId = lastId + 1
-                        
-                        //Create new todo item
-                        let newTodoItem = TodoItem(id: newId, description: newItemDescription, completed: false)
-                        
-                        //Add the new todo item to the list
-                        todoItems.append(newTodoItem)
-                        
-                        //Clears the input field
-                        newItemDescription = ""
+//                        //Get last todo item id
+//                        let lastId = todoItems.last!.id
+//
+//                        //Create new todo item id
+//                        let newId = lastId + 1
+//
+//                        //Create new todo item
+//                        let newTodoItem = TodoItem(id: newId, description: newItemDescription, completed: false)
+//
+//                        //Add the new todo item to the list
+//                        todoItems.append(newTodoItem)
+//
+//                        //Clears the input field
+//                        newItemDescription = ""
                         
                     }, label: {Text("ADD")
                             .font(.caption)
@@ -45,7 +47,7 @@ struct ListView: View {
                 }
                 .padding(20)
                 
-                List(todoItems) { currentItem in
+                List(todoItems.results) { currentItem in
                     
                     Label(title: { Text(currentItem.description)}, icon: {
                         if currentItem.completed == true {
@@ -56,6 +58,7 @@ struct ListView: View {
                     })
                 }
             }
+            .navigationTitle("To-Do List")
         }
     }
 }
